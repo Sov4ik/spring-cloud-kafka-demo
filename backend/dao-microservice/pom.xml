@@ -15,20 +15,12 @@
 	<description> Microservice for working with DAO</description>
 
 	<properties>
-		<spring.boot.version>2.2.5.RELEASE</spring.boot.version>
 		<spring-cloud-stream.version>Horsham.RELEASE</spring-cloud-stream.version>
 		<java.version>11</java.version>
 	</properties>
 
 	<dependencyManagement>
 		<dependencies>
-			<dependency>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-dependencies</artifactId>
-				<version>${spring.boot.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-stream-dependencies</artifactId>
@@ -83,7 +75,13 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-	</dependencies>
+
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-stream-binder-kafka-streams</artifactId>
+		</dependency>
+
+    </dependencies>
 
 	<build>
 		<plugins>
