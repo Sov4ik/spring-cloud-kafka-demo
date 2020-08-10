@@ -1,4 +1,3 @@
-/*
 package com.bookshop.authmicroservice.security.services;
 
 import com.bookshop.authmicroservice.models.User;
@@ -101,4 +100,3 @@ public class UserDetailsImpl implements UserDetails {
 		return Objects.equals(id, user.id);
 	}
 }
-*/

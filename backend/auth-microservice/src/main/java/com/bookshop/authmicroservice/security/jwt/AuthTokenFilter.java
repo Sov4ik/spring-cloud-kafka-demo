@@ -1,4 +1,3 @@
-/*
 package com.bookshop.authmicroservice.security.jwt;
 
 import com.bookshop.authmicroservice.security.services.UserDetailsServiceImpl;
@@ -59,4 +58,3 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 		return null;
 	}
 }
-*/

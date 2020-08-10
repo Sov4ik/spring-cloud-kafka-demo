@@ -1,6 +1,6 @@
 package com.bookshop.daomicroservice.config;
 
-import com.bookshop.daomicroservice.Payloads.LoginRequest;
+import com.bookshop.daomicroservice.messages.Message;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -49,24 +49,24 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ProducerFactory<String, LoginRequest> producerFactory() {
+    public ProducerFactory<String, Message<?>> producerFactory() {
         ProducerFactory pf = new DefaultKafkaProducerFactory<>(producerConfigs());
         return pf;
     }
 
     @Bean
-    public ConsumerFactory<String, LoginRequest> consumerFactory() {
-        return new DefaultKafkaConsumerFactory<>(consumerConfigs(), new StringDeserializer(), new JsonDeserializer<>(LoginRequest.class, false));
+    public ConsumerFactory<String, Message<?>> consumerFactory() {
+        return new DefaultKafkaConsumerFactory<>(consumerConfigs(), new StringDeserializer(), new JsonDeserializer<>(Message.class, false));
     }
     @Bean
-    public KafkaTemplate<String, LoginRequest> greetingKafkaTemplate() {
-        return new KafkaTemplate<String, LoginRequest>(producerFactory());
+    public KafkaTemplate<String, Message<?>> greetingKafkaTemplate() {
+        return new KafkaTemplate<>(producerFactory());
     }
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, LoginRequest>
+    public ConcurrentKafkaListenerContainerFactory<String, Message<?>>
     kafkaListenerContainerFactory() {
 
-        ConcurrentKafkaListenerContainerFactory<String, LoginRequest> factory =
+        ConcurrentKafkaListenerContainerFactory<String, Message<?>> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         factory.setReplyTemplate(greetingKafkaTemplate());

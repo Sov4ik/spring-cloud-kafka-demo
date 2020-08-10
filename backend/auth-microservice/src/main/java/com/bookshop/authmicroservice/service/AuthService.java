@@ -1,6 +1,6 @@
-/*
 package com.bookshop.authmicroservice.service;
 
+import com.bookshop.authmicroservice.Messages.MessageProvider;
 import com.bookshop.authmicroservice.models.ERole;
 import com.bookshop.authmicroservice.models.Role;
 import com.bookshop.authmicroservice.models.User;
@@ -18,6 +18,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.HashSet;
 import java.util.List;
@@ -33,13 +34,17 @@ public class AuthService {
 
     private final JwtUtils jwtUtils;
 
+    private final MessageProvider<String> messageProvider;
+
     public AuthService(AuthenticationManager authenticationManager,
                        PasswordEncoder encoder,
-                       JwtUtils jwtUtils) {
+                       JwtUtils jwtUtils,
+                       MessageProvider<String> messageProvider) {
 
         this.authenticationManager = authenticationManager;
         this.encoder = encoder;
         this.jwtUtils = jwtUtils;
+        this.messageProvider = messageProvider;
     }
 
     public ResponseEntity<?> authenticateUser(LoginRequest loginRequest) {
@@ -63,14 +68,15 @@ public class AuthService {
                 roles));
     }
 
-    public ResponseEntity<?> registerUser(SignupRequest signUpRequest) {
-        if (userRepository.existsByUsername(signUpRequest.getUsername())) {
+    public ResponseEntity<?> registerUser(@RequestBody SignupRequest signUpRequest)  {
+
+        if ( messageProvider.sendAndReceived(signUpRequest.getUsername(), 0).getData().equals("Fail")) {
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Username is already taken!"));
         }
 
-        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+        if ( messageProvider.sendAndReceived(signUpRequest.getEmail(), 1).getData().equals("Fail")) {
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Email is already in use!"));
@@ -97,7 +103,6 @@ public class AuthService {
         }
 
         user.setRoles(roles);
-        userRepository.save(user);
+        //userRepository.save(user);
     }
 }
-*/

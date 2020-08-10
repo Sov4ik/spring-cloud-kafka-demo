@@ -1,4 +1,3 @@
-/*
 package com.bookshop.authmicroservice.security.jwt;
 
 import org.slf4j.Logger;
@@ -24,4 +23,3 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
 	}
 
 }
-*/

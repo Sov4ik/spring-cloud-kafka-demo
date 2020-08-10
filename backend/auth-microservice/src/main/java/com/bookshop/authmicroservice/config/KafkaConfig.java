@@ -1,6 +1,6 @@
 package com.bookshop.authmicroservice.config;
 
-import com.bookshop.authmicroservice.payload.request.LoginRequest;
+import com.bookshop.authmicroservice.Messages.Message;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -52,24 +52,24 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, LoginRequest> kafkaTemplate() {
+    public KafkaTemplate<String, Message<?>> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 
     @Bean
-    public ConsumerFactory<String, LoginRequest> consumerFactory() {
-        return new DefaultKafkaConsumerFactory<>(consumerConfigs(),new StringDeserializer(),new JsonDeserializer<>(LoginRequest.class, false));
+    public ConsumerFactory<String, Message<?>> consumerFactory() {
+        return new DefaultKafkaConsumerFactory<>(consumerConfigs(),new StringDeserializer(),new JsonDeserializer<>(Message.class, false));
     }
 
     @Bean
-    public ProducerFactory<String, LoginRequest> producerFactory() {
+    public ProducerFactory<String, Message<?>> producerFactory() {
        return new DefaultKafkaProducerFactory<>(producerConfigs());
     }
 
     @Bean
-    public ReplyingKafkaTemplate<String, LoginRequest, LoginRequest> replyingKafkaTemplate(ProducerFactory<String, LoginRequest> pf,
-                                                                                           ConcurrentKafkaListenerContainerFactory<String, LoginRequest> factory) {
-        ConcurrentMessageListenerContainer<String, LoginRequest> replyContainer = factory.createContainer(replyTopic);
+    public ReplyingKafkaTemplate<String, Message<?>, Message<?>> replyingKafkaTemplate(ProducerFactory<String, Message<?>> pf,
+                                                                                           ConcurrentKafkaListenerContainerFactory<String, Message<?>> factory) {
+        ConcurrentMessageListenerContainer<String, Message<?>> replyContainer = factory.createContainer(replyTopic);
         replyContainer.getContainerProperties().setMissingTopicsFatal(false);
         replyContainer.getContainerProperties().setGroupId(groupId);
         replyContainer.setConcurrency(3);
@@ -78,10 +78,10 @@ public class KafkaConfig {
 
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, LoginRequest>
+    public ConcurrentKafkaListenerContainerFactory<String, Message<?>>
     kafkaListenerContainerFactory() {
 
-        ConcurrentKafkaListenerContainerFactory<String, LoginRequest> factory =
+        ConcurrentKafkaListenerContainerFactory<String, Message<?>> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         factory.setReplyTemplate(kafkaTemplate());
