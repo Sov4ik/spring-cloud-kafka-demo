@@ -2,16 +2,12 @@ package com.bookshop.daomicroservice.service;
 
 import com.bookshop.daomicroservice.Payloads.LoginRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 
 
@@ -26,25 +22,26 @@ public class TestService {
         this.objectMapper = objectMapper;
     }
 
-    @KafkaListener(topics = "${kafka.topic.request-topic}", groupId = "requestreplygorup")
+    @KafkaListener(topics = "${kafka.request.topic}")
     @SendTo
-    //@Transactional
-    public LoginRequest existsByUsername(LoginRequest messageJson) throws JsonProcessingException {
+    public LoginRequest onMessage(LoginRequest req) throws JsonProcessingException {
 
         //LoginRequest message = objectMapper.readValue(messageJson, new TypeReference<>(){});
 
+        //record.headers().add(KafkaHeaders.CORRELATION_ID, correlation);
         //logger.info("Success recived 1 = '{}'", message);
-        logger.info("Success recived 2 = '{}'", messageJson);
+        logger.info("Success recived 2 = '{}'", req);
         try {
 
             //userRepository.findByUsername(messageData).orElseThrow(() -> new RuntimeException("USer not found"));
-            return messageJson;
+            return req;
 
         }catch (RuntimeException e){
 
             logger.error("Error '{}'", e.getLocalizedMessage());
-            return messageJson;
+            return req;
         }
     }
+
 
 }

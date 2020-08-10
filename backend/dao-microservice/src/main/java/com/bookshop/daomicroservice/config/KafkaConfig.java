@@ -1,8 +1,5 @@
 package com.bookshop.daomicroservice.config;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.bookshop.daomicroservice.Payloads.LoginRequest;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -13,31 +10,31 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
-import org.springframework.kafka.config.KafkaListenerContainerFactory;
-import org.springframework.kafka.core.ConsumerFactory;
-import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.core.DefaultKafkaProducerFactory;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.core.ProducerFactory;
-import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
-import org.springframework.kafka.listener.ContainerProperties;
-import org.springframework.kafka.listener.KafkaMessageListenerContainer;
-import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
+import org.springframework.kafka.core.*;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @EnableKafka
 @Configuration
 public class KafkaConfig {
 
-    @Value("${kafka.bootstrap-servers}")
+    @Value("${spring.kafka.producer.bootstrap-servers}")
     private String bootstrapServers;
+    @Value("${spring.kafka.consumer.group-id}")
+    private String consumerGroupId;
 
-    @Value("${kafka.topic.requestreply-topic}")
-    private String requestReplyTopic;
-
-    @Value("${kafka.consumergroup}")
-    private String consumerGroup;
+    @Bean
+    public Map<String, Object> consumerConfigs() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroupId);
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        return props;
+    }
 
     @Bean
     public Map<String, Object> producerConfigs() {
@@ -52,46 +49,27 @@ public class KafkaConfig {
     }
 
     @Bean
-    public Map<String, Object> consumerConfigs() {
-        Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,bootstrapServers);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroup);
-        return props;
-    }
-
-    @Bean
     public ProducerFactory<String, LoginRequest> producerFactory() {
-        return new DefaultKafkaProducerFactory<>(producerConfigs());
-    }
-
-    @Bean
-    public KafkaTemplate<String, LoginRequest> kafkaTemplate() {
-        return new KafkaTemplate<>(producerFactory());
-    }
-
-    @Bean
-    public ReplyingKafkaTemplate<String, LoginRequest, LoginRequest> replyKafkaTemplate(ProducerFactory<String, LoginRequest> pf, KafkaMessageListenerContainer<String, LoginRequest> container){
-        return new ReplyingKafkaTemplate<>(pf, container);
-
-    }
-
-    @Bean
-    public KafkaMessageListenerContainer<String, LoginRequest> replyContainer(ConsumerFactory<String, LoginRequest> cf) {
-        ContainerProperties containerProperties = new ContainerProperties(requestReplyTopic);
-        return new KafkaMessageListenerContainer<>(cf, containerProperties);
+        ProducerFactory pf = new DefaultKafkaProducerFactory<>(producerConfigs());
+        return pf;
     }
 
     @Bean
     public ConsumerFactory<String, LoginRequest> consumerFactory() {
-        JsonDeserializer<LoginRequest> jsonDeserializer = new JsonDeserializer<>(LoginRequest.class, false);
-        return new DefaultKafkaConsumerFactory<>(consumerConfigs(),new StringDeserializer(), jsonDeserializer);
+        return new DefaultKafkaConsumerFactory<>(consumerConfigs(), new StringDeserializer(), new JsonDeserializer<>(LoginRequest.class, false));
     }
-
     @Bean
-    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, LoginRequest>> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, LoginRequest> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    public KafkaTemplate<String, LoginRequest> greetingKafkaTemplate() {
+        return new KafkaTemplate<String, LoginRequest>(producerFactory());
+    }
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, LoginRequest>
+    kafkaListenerContainerFactory() {
+
+        ConcurrentKafkaListenerContainerFactory<String, LoginRequest> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
-        factory.setReplyTemplate(kafkaTemplate());
+        factory.setReplyTemplate(greetingKafkaTemplate());
         return factory;
     }
 

@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
 @RestController
@@ -27,38 +26,34 @@ public class SumController {
     @Autowired
     ReplyingKafkaTemplate<String, LoginRequest, LoginRequest> kafkaTemplate;
 
-    @Value("${kafka.topic.request-topic}")
+
+    @Value("${kafka.request.topic}")
     String requestTopic;
 
-    @Value("${kafka.topic.requestreply-topic}")
+    @Value("${kafka.reply.topic}")
     String requestReplyTopic;
-
 
     private static final Logger logger = LoggerFactory.getLogger(SumController.class);
 
-    @PostMapping(value = "/qwerty", produces= MediaType.APPLICATION_JSON_VALUE,consumes=MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/qwerty", produces= MediaType.APPLICATION_JSON_VALUE, consumes=MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> sum(@RequestBody LoginRequest request) throws InterruptedException, ExecutionException {
-        // create producer record
-        logger.info("Get - " + request);
 
-        // create producer record
+        logger.info("send request [{}]", request);
+        //String requestJSON = objectMapper.writeValueAsString(request);
         ProducerRecord<String, LoginRequest> record = new ProducerRecord<>(requestTopic, request);
-        // post in kafka topic
+        record.headers().add(new RecordHeader(KafkaHeaders.REPLY_TOPIC, requestReplyTopic.getBytes()));
+
         RequestReplyFuture<String, LoginRequest, LoginRequest> sendAndReceive = kafkaTemplate.sendAndReceive(record);
+        SendResult<String, LoginRequest> sendResult = sendAndReceive.getSendFuture().get();
+        logger.info("ProducerRecord request[{}]", sendResult.getProducerRecord());
 
-        // confirm if producer produced successfully
-         SendResult<String, LoginRequest> sendResult = sendAndReceive.getSendFuture().get();
-
-        // print all headers
-         sendResult.getProducerRecord().headers().forEach(header -> System.out.println(header.key() + ":" + header.value().toString()));
-
-        // get consumer record
         ConsumerRecord<String, LoginRequest> consumerRecord = sendAndReceive.get();
-        // return consumer value
+        logger.info("ConsumerRecord request[{}]", consumerRecord);
 
-        logger.info("Recived - " + consumerRecord);
+        //String jsonResponse = consumerRecord.value();
+
         // return consumer value
-        return ResponseEntity.ok().body(request);
+        return ResponseEntity.ok().body(consumerRecord.value());
     }
 
 }
