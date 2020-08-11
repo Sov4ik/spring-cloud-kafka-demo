@@ -68,7 +68,7 @@ public class AuthService {
                 roles));
     }
 
-    public ResponseEntity<?> registerUser(@RequestBody SignupRequest signUpRequest)  {
+    public ResponseEntity<?> registerUser(SignupRequest signUpRequest)  {
 
         if ( messageProvider.sendAndReceived(signUpRequest.getUsername(), 0).getData().equals("Fail")) {
             return ResponseEntity
