@@ -2,7 +2,6 @@ package com.bookshop.bookmicroservice.service;
 
 import com.bookshop.bookmicroservice.messages.MessageProvider;
 import com.bookshop.bookmicroservice.models.Book;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,8 +22,8 @@ public class BookService {
     }
 
     @Transactional
-    public ResponseEntity<Book> getBookById(String bookId){
-       return  ResponseEntity.ok().body((Book) messageProvider.sendAndReceived(bookId, 1).getData());
+    public Object getBookById(String bookId){
+        return messageProvider.sendAndReceived(bookId, 1).getData();
     }
 
     /*public ResponseEntity<?> save(Book book) {

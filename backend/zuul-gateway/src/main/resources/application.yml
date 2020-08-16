@@ -24,3 +24,7 @@ zuul:
       path: /api/**
       serviceId: auth-service
       stripPrefix: true
+    book-service:
+      path: /api/**
+      serviceId: book-service
+      stripPrefix: true

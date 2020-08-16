@@ -3,6 +3,8 @@ package com.bookshop.bookmicroservice.controller;
 
 import com.bookshop.bookmicroservice.models.Book;
 import com.bookshop.bookmicroservice.service.BookService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,26 +26,28 @@ public class BookController {
         return bookService.findAll();
     }
 
-    @GetMapping("/books/{id}")
-    public ResponseEntity<Book> getEmployeeById(@PathVariable(value = "id") String bookId) {
+    @GetMapping("/getBook/{id}")
+    public ResponseEntity<?> getEmployeeById(@PathVariable(value = "id") String bookId) {
+        Logger logger = LoggerFactory.getLogger(BookController.class);
+        logger.info ("AAA");
 
-        return bookService.getBookById(bookId);
+        return ResponseEntity.ok(bookService.getBookById(bookId));
     }
 
-    @PostMapping("/books")
+    @PostMapping("/saveBook")
     public boolean createBook(@Valid @RequestBody Book book) {
         //bookService.save(book);
         return true;
     }
 
-    @PutMapping("/books/{id}")
+    @PutMapping("/updateBooks/{id}")
     public boolean updateBook(@PathVariable(value = "id") Long bookId,
                                                    @Valid @RequestBody Book bookDetails){
         //bookService.updateBook(bookId, bookDetails);
         return true;
     }
 
-    @DeleteMapping("/books/{id}")
+    @DeleteMapping("/deleteBooks/{id}")
     public boolean deleteBook(@PathVariable(value = "id") Long bookId){
         //bookService.deleteBook(bookId);
         return true;
