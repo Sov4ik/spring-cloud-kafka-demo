@@ -13,6 +13,7 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>dao-microservice</name>
 	<description> Microservice for working with DAO</description>
+	<packaging>jar</packaging>
 
 	<properties>
 		<spring-cloud-stream.version>Horsham.RELEASE</spring-cloud-stream.version>
