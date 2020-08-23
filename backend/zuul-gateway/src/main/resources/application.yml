@@ -20,11 +20,7 @@ zuul:
     socket-timeout-millis: 50000
   ignored-services: '*'
   routes:
-    auth-service:
-      path: /api/**
-      serviceId: auth-service
-      stripPrefix: true
     book-service:
-      path: /api/**
+      path: /books/**
       serviceId: book-service
       stripPrefix: true

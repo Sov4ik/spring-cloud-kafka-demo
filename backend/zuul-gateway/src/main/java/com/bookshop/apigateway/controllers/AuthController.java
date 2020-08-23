@@ -4,13 +4,13 @@ import com.bookshop.apigateway.payload.request.LoginRequest;
 import com.bookshop.apigateway.payload.request.SignupRequest;
 import com.bookshop.apigateway.service.AuthService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 
 import javax.validation.Valid;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
-@RestController
+@Controller
 @RequestMapping("/auth")
 public class AuthController {
 
@@ -24,11 +24,6 @@ public class AuthController {
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
 		return authService.authenticateUser(loginRequest);
-    }
-
-    @GetMapping("/hello")
-    public ResponseEntity<?> hello(){
-        return ResponseEntity.ok().body("OK");
     }
 
     @PostMapping("/signup")

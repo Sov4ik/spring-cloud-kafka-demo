@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
 import javax.validation.Valid;
 import java.util.List;
 
@@ -17,20 +16,27 @@ public class BookController {
 
     private final BookService bookService;
 
+    Logger logger = LoggerFactory.getLogger(BookController.class);
+
     public BookController(BookService bookService){
         this.bookService = bookService;
     }
 
     @GetMapping("/books")
-    public List<Book> getAllBook() {
-        return bookService.findAll();
+    public ResponseEntity<?> getAllBook() {
+        logger.info(bookService.findAll().toString());
+        return ResponseEntity.ok().body(bookService.findAll());
     }
+
+
+    @GetMapping("/hello")
+    public ResponseEntity<?> hello(){
+        return ResponseEntity.ok().body("OK");
+    }
+
 
     @GetMapping("/getBook/{id}")
     public ResponseEntity<?> getEmployeeById(@PathVariable(value = "id") String bookId) {
-        Logger logger = LoggerFactory.getLogger(BookController.class);
-        logger.info ("AAA");
-
         return ResponseEntity.ok(bookService.getBookById(bookId));
     }
 

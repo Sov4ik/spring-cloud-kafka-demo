@@ -1,6 +1,5 @@
 package com.bookshop.apigateway.service;
 
-import com.bookshop.apigateway.Messages.MessageProvider;
 import com.bookshop.apigateway.models.ERole;
 import com.bookshop.apigateway.models.Role;
 import com.bookshop.apigateway.models.User;
@@ -8,6 +7,7 @@ import com.bookshop.apigateway.payload.request.LoginRequest;
 import com.bookshop.apigateway.payload.request.SignupRequest;
 import com.bookshop.apigateway.payload.response.JwtResponse;
 import com.bookshop.apigateway.payload.response.MessageResponse;
+import com.bookshop.apigateway.repository.UserRepository;
 import com.bookshop.apigateway.security.jwt.JwtUtils;
 import com.bookshop.apigateway.security.services.UserDetailsImpl;
 import org.springframework.http.ResponseEntity;
@@ -33,17 +33,17 @@ public class AuthService {
 
     private final JwtUtils jwtUtils;
 
-    private final MessageProvider<String> messageProvider;
+    private final UserRepository userRepository;
 
     public AuthService(AuthenticationManager authenticationManager,
                        PasswordEncoder encoder,
                        JwtUtils jwtUtils,
-                       MessageProvider<String> messageProvider) {
+                       UserRepository userRepository) {
 
         this.authenticationManager = authenticationManager;
         this.encoder = encoder;
         this.jwtUtils = jwtUtils;
-        this.messageProvider = messageProvider;
+        this.userRepository = userRepository;
     }
 
     public ResponseEntity<?> authenticateUser(LoginRequest loginRequest) {
@@ -69,13 +69,13 @@ public class AuthService {
 
     public ResponseEntity<?> registerUser(SignupRequest signUpRequest)  {
 
-        if ( messageProvider.sendAndReceived(signUpRequest.getUsername(), 0).getData().equals("Fail")) {
+        if ( userRepository.existsByUsername(signUpRequest.getUsername())) {
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Username is already taken!"));
         }
 
-        if ( messageProvider.sendAndReceived(signUpRequest.getEmail(), 1).getData().equals("Fail")) {
+        if ( userRepository.existsByEmail(signUpRequest.getEmail())) {
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Email is already in use!"));

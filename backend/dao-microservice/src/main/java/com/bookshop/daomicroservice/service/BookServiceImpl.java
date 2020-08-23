@@ -27,7 +27,7 @@ public class BookServiceImpl implements BookService{
 
     private final ObjectMapper objectMapper;
 
-    Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+    Logger logger = LoggerFactory.getLogger(BookServiceImpl.class);
 
     public BookServiceImpl(BookRepository bookRepository,
                            ObjectMapper objectMapper){
