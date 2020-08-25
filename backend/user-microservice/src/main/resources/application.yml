@@ -1,12 +1,13 @@
+server:
+  port: 9192
+
 spring:
   cloud:
     stream:
       bindings:
         input:
           destination: dao-user
+          content-type: application/json
         output:
           destination: dao-user
-
-
-spring.cloud.stream.bindings.output.content-type: application/json
-spring.cloud.stream.bindings.input.content-type: application/json
+          content-type: application/json

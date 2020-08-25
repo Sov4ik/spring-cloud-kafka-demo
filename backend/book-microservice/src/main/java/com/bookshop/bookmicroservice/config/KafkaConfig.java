@@ -53,8 +53,8 @@ public class KafkaConfig {
 
     @Bean
     public ProducerFactory<String, Message<?>> producerFactory() {
-        ProducerFactory pf = new DefaultKafkaProducerFactory<>(producerConfigs());
-        return pf;
+        //ProducerFactory pf = new DefaultKafkaProducerFactory<>(producerConfigs());
+        return new DefaultKafkaProducerFactory<>(producerConfigs());
     }
 
     @Bean

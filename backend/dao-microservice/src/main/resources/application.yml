@@ -1,12 +1,45 @@
+server:
+  port: 9193
+
 spring:
   cloud:
     stream:
       bindings:
         input:
           destination: dao-user
+          content-type: application/json
         output:
           destination: dao-user
+          content-type: application/json
+  datasource:
+    password: root
+    url: jdbc:postgresql://postgres:5432/book_shop
+    username: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          lob:
+            non_contextual_creation: true
+  kafka:
+    bootstrap-servers: kafka:9092
+    consumer:
+      group-id: fib--group
+      bootstrap-servers: kafka:9092
+    producer:
+      bootstrap-servers: kafka:9092
+
+kafka:
+  reply:
+    topic: fib-response
+  replybook:
+    topic: book-response
+  request:
+    topic: fib-request
+  requestbook:
+    topic: book-request
 
 
-spring.cloud.stream.bindings.output.content-type: application/json
-spring.cloud.stream.bindings.input.content-type: application/json
