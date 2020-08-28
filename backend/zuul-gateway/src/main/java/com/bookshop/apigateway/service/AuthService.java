@@ -102,6 +102,6 @@ public class AuthService {
         }
 
         user.setRoles(roles);
-        //userRepository.save(user);
+        userRepository.save(user);
     }
 }
