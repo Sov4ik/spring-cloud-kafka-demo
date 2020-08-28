@@ -13,7 +13,7 @@ spring:
           content-type: application/json
   datasource:
     password: root
-    url: jdbc:postgresql://postgres:5432/book_shop
+    url: jdbc:postgresql://${psql.host:localhost:5432}/book_shop
     username: postgres
   jpa:
     hibernate:
@@ -25,12 +25,12 @@ spring:
           lob:
             non_contextual_creation: true
   kafka:
-    bootstrap-servers: kafka:9092
+    bootstrap-servers: ${registry.host:localhost:29092}
     consumer:
       group-id: fib--group
-      bootstrap-servers: kafka:9092
+      bootstrap-servers: ${registry.host:localhost:29092}
     producer:
-      bootstrap-servers: kafka:9092
+      bootstrap-servers: ${registry.host:localhost:29092}
 
 kafka:
   reply:

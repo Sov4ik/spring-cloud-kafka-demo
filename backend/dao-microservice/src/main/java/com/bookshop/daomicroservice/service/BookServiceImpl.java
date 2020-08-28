@@ -44,7 +44,7 @@ public class BookServiceImpl implements BookService{
         Message<Book> message = objectMapper.readValue(messageJson, new TypeReference<>(){});
         Book messageData = message.getData();
 
-        logger.info("Success recived = '{}'", messageData.getName());
+        logger.info("Success recived = '{}'", messageData.getId());
         bookRepository.save(messageData);
     }
 
@@ -57,10 +57,9 @@ public class BookServiceImpl implements BookService{
 
         logger.info("Success received '[{}]'", messageJson.getData());
 
-        if (bookRepository.findBookById(Long.parseLong(messageJson.getData().toString())).isPresent())
-        messageJson.setData(bookRepository.findBookById((Long.parseLong(messageJson.getData().toString()))).get());
+        Book book = (Book) messageJson.getData();
 
-        else messageJson.setData("Fail");
+        bookRepository.findBookById(book.getId()).ifPresentOrElse(messageJson::setData, () -> messageJson.setData("Fail"));
 
         logger.info("Success send [{}]", messageJson.getData());
 
@@ -90,13 +89,16 @@ public class BookServiceImpl implements BookService{
     @Transactional
     public void deleteBook(String messageJson) throws JsonProcessingException {
 
+        logger.info("AAAAA" + messageJson);
+
+
         Message<Book> message = objectMapper.readValue(messageJson, new TypeReference<>(){});
         Book messageData = message.getData();
 
-        logger.info("Success received [{}]", messageData.getName());
+        logger.info("Success received 2 [{}]", messageData.getId());
 
         bookRepository.deleteById(messageData.getId());
 
-        logger.info("Success delete [{}]", messageData.getName());
+        logger.info("Success delete [{}]", messageData.getId());
     }
 }

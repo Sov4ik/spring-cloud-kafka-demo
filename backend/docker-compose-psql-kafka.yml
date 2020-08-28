@@ -1,0 +1,93 @@
+version: '3.5'
+
+networks:
+  backend:
+    name: backend
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper
+    container_name: zookeeper
+    restart: unless-stopped
+    networks:
+      - backend
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    healthcheck:
+      test: "echo stat | nc localhost $$ZOOKEEPER_CLIENT_PORT"
+
+  kafka:
+    image: confluentinc/cp-kafka
+    container_name: kafka
+    restart: unless-stopped
+    networks:
+      - backend
+    depends_on:
+      - zookeeper
+    ports:
+      - "29092:29092"
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_DELETE_TOPIC_ENABLE: "true"
+      KAFKA_CREATE_TOPICS: "fib-response:4:1,book-response:4:1,fib-request:4:1,book-request:4:1,dao-user:1:1"
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "9092" ]
+
+  kafka-rest-proxy:
+    image: confluentinc/cp-kafka-rest
+    container_name: kafka-rest-proxy
+    restart: unless-stopped
+    networks:
+      - backend
+    depends_on:
+      - zookeeper
+      - kafka
+    ports:
+      - "8082:8082"
+    environment:
+      KAFKA_REST_BOOTSTRAP_SERVERS: "PLAINTEXT://kafka:9092"
+      KAFKA_REST_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_REST_HOST_NAME: "kafka-rest-proxy"
+      KAFKA_REST_LISTENERS: "http://0.0.0.0:8082"
+      KAFKA_REST_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+      KAFKA_REST_CONSUMER_REQUEST_TIMEOUT_MS: 30000
+    healthcheck:
+      test: "curl -f http://localhost:8082 || exit 1"
+
+  kafka-topics-ui:
+    image: landoop/kafka-topics-ui
+    container_name: kafka-topics-ui
+    restart: unless-stopped
+    networks:
+      - backend
+    depends_on:
+      - kafka-rest-proxy
+    ports:
+      - "8085:8000"
+    environment:
+      KAFKA_REST_PROXY_URL: "http://kafka-rest-proxy:8082"
+      PROXY: "true"
+    healthcheck:
+      test: "wget --quiet --tries=1 --spider http://localhost:8000 || exit 1"
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres-book
+    networks:
+      - backend
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    expose:
+      - 5432
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=book_shop
+    restart: unless-stopped
+volumes:
+  postgres-data:
