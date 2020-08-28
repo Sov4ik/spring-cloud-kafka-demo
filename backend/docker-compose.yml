@@ -31,6 +31,8 @@ services:
     build: zuul-gateway
     image: zuul-gateway
     container_name: zuul-gateway
+    environment:
+      PSQL_HOST: postgres:5432
     networks:
       - service
     expose:
